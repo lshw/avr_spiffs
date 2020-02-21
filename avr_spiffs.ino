@@ -1,4 +1,5 @@
 #include "src/spiffs_api.h"
+#include "spi_test.h"
 
 void setup(){
   Serial.begin(115200);
