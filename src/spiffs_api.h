@@ -29,12 +29,14 @@ static u8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*2];
 
 uint32_t chipsize,blocksize;
 s32_t _spiffs_read(u32_t addr, u32_t size, u8_t *dst) {
-  /*
-     SPI.transfer16(0x0300 | ((addr >> 16) & 255));
-     SPIPORT.transfer16(addr);
-     SPIPORT.transfer(p, rdlen);
-   */
-  SerialFlash.read(addr, dst, size);
+  digitalWrite(cs1, LOW);
+  delay(10);
+  SPI.transfer16(0x0300 | ((addr >> 16) & 255));
+  SPI.transfer16(addr);
+  SPI.transfer(dst, size);
+  delay(10);
+  digitalWrite(cs1, HIGH);
+  //SerialFlash.read(addr, dst, size);
   return 0;
 }
 static s32_t _spiffs_write(u32_t addr, u32_t size, u8_t *src) {
@@ -50,7 +52,7 @@ static s32_t _spiffs_erase(uint32_t addr, int32_t size) {
   uint8_t ch;
   while(size>0) {
     for(uint16_t i=0;i<4096;i++) {
-      SerialFlash.read(addr+i, &ch, 1);
+      _spiffs_read(addr+i,1,&ch);
       if(ch!=0xff) break;
     }
     if(ch!=0xff) {
