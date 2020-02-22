@@ -12,7 +12,7 @@ uint16_t cs1;
 
 uint8_t manufacture_id=0,memory_type,capacity;
 uint32_t chipsize;
-uint32_t _read_jedec_chipsize() {
+uint32_t sys_read_jedec_chipsize() {
   if(manufacture_id==0) {
     SPI.beginTransaction(SPICONFIG);
     digitalWrite(cs1, LOW);
@@ -53,7 +53,7 @@ void _write_disable(){
   SPI.endTransaction();
 }
 
-void _erase_all() {
+void sys_erase_all() {
   _write_enable();
   SPI.beginTransaction(SPICONFIG);
   digitalWrite(cs1, LOW);
@@ -149,13 +149,13 @@ static u8_t spiffs_work_buf[LOG_PAGE_SIZE*2];
 static u8_t spiffs_fds[32*4];
 static u8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*2];
 
-void spiffs_init(uint8_t cs) {
+void sys_spiffs_init(uint8_t cs) {
   uint8_t buf[256];
   cs1=cs;
   pinMode(cs1,OUTPUT);
   digitalWrite(cs1,HIGH);
   SPI.begin();
-  _read_jedec_chipsize();
+  sys_read_jedec_chipsize();
   Serial.print(F("id="));
   Serial.print(manufacture_id,HEX);
   Serial.write(' ');
@@ -189,7 +189,7 @@ void sys_spiffs_format(void)
      if(ret<0)
      { Serial.print(F("format errno=")); Serial.println(SPIFFS_errno(&fs)); }
    */
-  _erase_all();
+  sys_erase_all();
   int res = SPIFFS_mount(&fs,
       &cfg,
       spiffs_work_buf,
@@ -216,4 +216,11 @@ void sys_spiffs_mount(void)
   {
     sys_spiffs_format();
   }
+}
+
+//剩余空间
+uint32_t sys_free() {
+uint32_t total,used;
+SPIFFS_info(&fs,&total,&used);
+return total-used;
 }

@@ -3,11 +3,14 @@
 
 void setup(){
   Serial.begin(115200);
-  spiffs_init(11); //cs=11
-
+  sys_spiffs_init(11); //cs=11
   //test();
   sys_spiffs_mount();
  // sys_spiffs_format();
+
+  Serial.print(F("free:"));
+  Serial.print(sys_free()/1024);
+  Serial.println("k");
   char WriteBuf[]={"hello world!"};
   char ReadBuf[80];
 
