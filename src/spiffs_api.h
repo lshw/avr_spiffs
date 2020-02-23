@@ -156,15 +156,16 @@ void sys_spiffs_init(uint8_t cs) {
   digitalWrite(cs1,HIGH);
   SPI.begin();
   sys_read_jedec_chipsize();
-  Serial.print(F("id="));
+  Serial.print(F("\r\njedec id="));
   Serial.print(manufacture_id,HEX);
   Serial.write(' ');
   Serial.print(memory_type,HEX);
   Serial.write(' ');
   Serial.println(capacity,HEX);
   Serial.print(F("chipsize="));
-  Serial.println(chipsize);
-  cfg.hal_erase_f = &_spiffs_erase;
+  Serial.print(chipsize/1024);
+  Serial.println("K");
+  cfg.hal_erase_f = &_spiffs_erase; //移植需要这3个函数
   cfg.hal_read_f = &_spiffs_read;
   cfg.hal_write_f = &_spiffs_write;
   cfg.phys_size = chipsize;//chipsize/32;
@@ -223,4 +224,11 @@ uint32_t sys_free() {
 uint32_t total,used;
 SPIFFS_info(&fs,&total,&used);
 return total-used;
+}
+
+//总空间
+uint32_t sys_full_size() {
+uint32_t total,used;
+SPIFFS_info(&fs,&total,&used);
+return total;
 }

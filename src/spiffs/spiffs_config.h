@@ -15,7 +15,7 @@
 #define SPIFFS_PAGE_CHECK 0
 #define SPIFFS_ALIGNED_OBJECT_INDEX_TABLES  0
 #define SPIFFS_READ_ONLY  0
-#define SPIFFS_TEMPORAL_FD_CACHE            0
+#define SPIFFS_TEMPORAL_FD_CACHE            1
 
 
 #include <stddef.h>
