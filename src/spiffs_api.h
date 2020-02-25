@@ -218,7 +218,10 @@ void sys_spiffs_mount(void)
     sys_spiffs_format();
   }
 }
-
+bool fs_exists(char * path) {
+    spiffs_stat stat;
+    return SPIFFS_stat(&fs, path, &stat)==SPIFFS_OK;
+}
 //剩余空间
 uint32_t sys_free() {
 uint32_t total,used;
