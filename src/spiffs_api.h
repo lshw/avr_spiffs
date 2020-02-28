@@ -7,7 +7,13 @@ static spiffs fs;
 uint16_t cs1;
 
 /*页定义*/
-#define LOG_PAGE_SIZE      256
+#define LOG_PAGE_SIZE      512
+//初始化以及配置
+spiffs_config cfg;
+static u8_t spiffs_work_buf[LOG_PAGE_SIZE*2];
+static u8_t spiffs_fds[32*4];
+//static u8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*2];
+//static u8_t spiffs_cache_buf[];
 
 
 uint8_t manufacture_id=0,memory_type,capacity;
@@ -143,14 +149,8 @@ static s32_t _spiffs_erase(uint32_t addr, int32_t size) {
   return 0;
 }
 
-//初始化以及配置
-spiffs_config cfg;
-static u8_t spiffs_work_buf[LOG_PAGE_SIZE*2];
-static u8_t spiffs_fds[32*4];
-static u8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*2];
 
 void sys_spiffs_init(uint8_t cs) {
-  uint8_t buf[256];
   cs1=cs;
   pinMode(cs1,OUTPUT);
   digitalWrite(cs1,HIGH);
@@ -171,8 +171,8 @@ void sys_spiffs_init(uint8_t cs) {
   cfg.phys_size = chipsize;//chipsize/32;
   cfg.phys_addr = 0;//chipsize-chipsize/16;
   cfg.phys_erase_block = 4096;
-  cfg.log_block_size =4096;
-  cfg.log_page_size = 256;
+  cfg.log_block_size =65536;
+  cfg.log_page_size = LOG_PAGE_SIZE;
 #if SPIFFS_FILEHDL_OFFSET
   cfg.fh_ix_offset = 1000;
 #endif
@@ -196,8 +196,8 @@ void sys_spiffs_format(void)
       spiffs_work_buf,
       spiffs_fds,
       sizeof(spiffs_fds),
-      spiffs_cache_buf,
-      sizeof(spiffs_cache_buf),
+      0,//spiffs_cache_buf,
+      0,//sizeof(spiffs_cache_buf),
       0);
   // { Serial.print(F("errno ")); Serial.println(SPIFFS_errno(&fs)); }
 }
@@ -210,8 +210,8 @@ void sys_spiffs_mount(void)
       spiffs_work_buf,
       spiffs_fds,
       sizeof(spiffs_fds),
-      spiffs_cache_buf,
-      sizeof(spiffs_cache_buf),
+      0,//spiffs_cache_buf,
+      0,//sizeof(spiffs_cache_buf),
       0);
   if(SPIFFS_ERR_NOT_A_FS == res )
   {
